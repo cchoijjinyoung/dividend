@@ -10,11 +10,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application {
 
     public static void main(String[] args) {
-//        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class, args);
 
-        Scraper scraper = new YahooFinanceScraper();
+//        Scraper scraper = new YahooFinanceScraper();
 //        var result = scraper.scrap(Company.builder().ticker("O").build());
-        var result = scraper.scrapCompanyByTicker("MMM");
-        System.out.println(result);
+//        var result = scraper.scrapCompanyByTicker("MMM");
+//        System.out.println(result);
     }
 }
