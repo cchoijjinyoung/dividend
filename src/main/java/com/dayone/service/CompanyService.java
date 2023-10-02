@@ -23,6 +23,7 @@ public class CompanyService {
 
     private Trie trie;
     private final Scraper yahooFinanceScraper;
+
     private final CompanyRepository companyRepository;
     private final DividendRepository dividendRepository;
 
