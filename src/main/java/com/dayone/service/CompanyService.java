@@ -8,6 +8,7 @@ import com.dayone.persist.entity.CompanyEntity;
 import com.dayone.persist.entity.DividendEntity;
 import com.dayone.scraper.Scraper;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.Trie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CompanyService {
 
+    private Trie trie;
     private final Scraper yahooFinanceScraper;
     private final CompanyRepository companyRepository;
     private final DividendRepository dividendRepository;
