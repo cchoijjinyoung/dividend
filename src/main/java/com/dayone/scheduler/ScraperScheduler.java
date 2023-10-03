@@ -2,6 +2,7 @@ package com.dayone.scheduler;
 
 import com.dayone.model.Company;
 import com.dayone.model.ScrapedResult;
+import com.dayone.model.constants.CacheKey;
 import com.dayone.persist.CompanyRepository;
 import com.dayone.persist.DividendRepository;
 import com.dayone.persist.entity.CompanyEntity;
@@ -9,6 +10,8 @@ import com.dayone.persist.entity.DividendEntity;
 import com.dayone.scraper.Scraper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +19,7 @@ import java.util.List;
 
 @Slf4j
 @Component
+@EnableCaching
 @AllArgsConstructor
 public class ScraperScheduler {
 
@@ -24,6 +28,7 @@ public class ScraperScheduler {
     private final Scraper yahooFinanceScraper;
 
     // 일정 주기마다 수행
+    @CacheEvict(value = CacheKey.KEY_FINANCE, allEntries = true) // Redis 캐시메모리의 finance에 해당 하는 데이터는 모두 지운다.
     @Scheduled(cron = "${scheduler.scrap.yahoo}") // application.yml 설정 파일로 관리해준다.
     public void yahooFinanceScheduling() {
         // 저장된 회사 목록을 조회
