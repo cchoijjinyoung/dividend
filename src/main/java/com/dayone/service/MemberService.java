@@ -1,5 +1,8 @@
 package com.dayone.service;
 
+import com.dayone.exception.impl.AlreadyExistUserException;
+import com.dayone.exception.impl.IncorrectPasswordException;
+import com.dayone.exception.impl.NoExistUsernameException;
 import com.dayone.model.Auth;
 import com.dayone.model.MemberEntity;
 import com.dayone.persist.MemberRepository;
@@ -28,16 +31,22 @@ public class MemberService implements UserDetailsService {
     public MemberEntity register(Auth.SignUp member) {
         boolean exists = this.memberRepository.existsByUsername(member.getUsername());
         if (exists) {
-            throw new RuntimeException("이미 사용 중인 아이디 입니다.");
+            throw new AlreadyExistUserException();
         }
         // password 같은 경우 데이터베이스에 넣기 전에 암호화를 해서 넣는다.
         member.setPassword(this.passwordEncoder.encode(member.getPassword()));
-        MemberEntity result = this.memberRepository.save(member.toEntity());
+        var result = this.memberRepository.save(member.toEntity());
 
         return result;
     }
 
     public MemberEntity authenticate(Auth.SignIn member) {
-        return null;
+        var user = this.memberRepository.findByUsername(member.getUsername())
+                .orElseThrow(() -> new NoExistUsernameException());
+
+        if (!this.passwordEncoder.matches(member.getPassword(), user.getPassword())) {
+            throw new IncorrectPasswordException();
+        }
+        return user;
     }
 }

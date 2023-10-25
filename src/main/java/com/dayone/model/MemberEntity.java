@@ -5,10 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,11 +22,14 @@ public class MemberEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // READ, WRITE 권한 둘 다 가질 수 있기 때문
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles;
+    // 해당 필드가 기본타입(String) 또는 embeddable 컬렉션이며 엔티티의 컬렉션은 아니라고 JPA에 알려준다.
+
     private String username;
 
     private String password;
-
-    private List<String> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

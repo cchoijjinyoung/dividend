@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Dividend {
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)

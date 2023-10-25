@@ -1,5 +1,8 @@
 package com.dayone.service;
 
+import com.dayone.exception.impl.AlreadyExistTickerException;
+import com.dayone.exception.impl.NoCompanyException;
+import com.dayone.exception.impl.NoTickerException;
 import com.dayone.model.Company;
 import com.dayone.model.ScrapedResult;
 import com.dayone.persist.CompanyRepository;
@@ -22,7 +25,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CompanyService {
 
-    private Trie trie;
+    private final Trie trie;
     private final Scraper yahooFinanceScraper;
 
     private final CompanyRepository companyRepository;
@@ -31,7 +34,7 @@ public class CompanyService {
     public Company save(String ticker) {
         boolean exists = this.companyRepository.existsByTicker(ticker);
         if (exists) {
-            throw new RuntimeException("already exists ticker -> " + ticker);
+            throw new AlreadyExistTickerException();
         }
         return this.storeCompanyAndDividend(ticker);
     }
@@ -44,7 +47,7 @@ public class CompanyService {
         // ticker를 기준으로 회사를 스크래핑
         Company company = this.yahooFinanceScraper.scrapCompanyByTicker(ticker);
         if (ObjectUtils.isEmpty(company)) {
-            throw new RuntimeException("failed to scrap ticker -> " + ticker);
+            throw new NoTickerException();
         }
 
         // 해당 회사가 존재할 경우, 회사의 배당금 정보를 스크래핑
@@ -79,5 +82,18 @@ public class CompanyService {
 
     public void deleteAutocompleteKeyword(String keyword) {
         this.trie.remove(keyword);
+    }
+
+    public String deleteCompany(String ticker) {
+        var company = this.companyRepository.findByTicker(ticker)
+                .orElseThrow(() -> new NoCompanyException());
+        // 회사를 지웠을 때, 해당 회사의 배당금 데이터도 지운다.
+        this.dividendRepository.deleteAllByCompanyId(company.getId());
+        this.companyRepository.delete(company);
+
+        // Trie 데이터 삭제
+        this.deleteAutocompleteKeyword(company.getName());
+
+        return company.getName();
     }
 }
